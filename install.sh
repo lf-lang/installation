@@ -137,7 +137,7 @@ for tool in "${selected[@]}"; do
     ;;
   esac
 
-  echo "> Installing the latest $kind $description release of $tool..."
+  echo "> Installing the latest $kind release of $description..."
   echo ""
 
   # Download
