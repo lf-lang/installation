@@ -13,3 +13,5 @@ jobs:
       - name: Run the installer
         run: |
           bash install.sh nightly all
+          bash install.sh stable all
+          bash install.sh epoch cli
