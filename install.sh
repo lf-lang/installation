@@ -13,7 +13,7 @@ set -eo pipefail
 # To install the nightly release of Epoch, run:
 # curl -s https://install.lf-lang.org | bash -s nightly epoch
 
-tools=(cli epoch)
+tools=("cli" "epoch")
 selected=()
 
 install() (
@@ -54,7 +54,7 @@ case $i in
     tmp=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
     ;;
     all)
-    selected=$all_tools
+    selected=("${tools[@]}")
     ;;
     cli)
     selected+=("cli")
@@ -114,10 +114,7 @@ if [ ! -d $prefix/lib ]; then
   mkdir -p $prefix/lib;
 fi
 
-echo $prefix
-echo $kind
-echo ${selected[0]}
-
+# Install the selected tools
 for tool in "${selected[@]}"; do
   case $tool in
     cli)
