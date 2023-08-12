@@ -15,7 +15,6 @@ set -eo pipefail
 
 tools=("cli" "epoch")
 selected=()
-wsl=false
 
 if [[ $(uname -m) == 'arm64' ]]; then
   arch='aarch64'
@@ -23,25 +22,28 @@ else
   arch='x86_64'
 fi
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  os='MacOS'
-elif [[ "$OSTYPE" == "win32" ]]; then
-  os="Windows"
-else
-  os="Linux"
-  if [[ $(grep -i Microsoft /proc/version) ]]; then
-    wsl=true
-    echo "Bash is running on WSL"
-  fi
-fi
+sh_os="Linux"
 
-echo "OS TYPE: $OSTYPE"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  bin_os="Linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  bin_os="MacOS"
+  sh_os="$bin_os"
+elif [[ "$OSTYPE" == "msys" ]]; then
+  bin_os="Windows"
+else
+  echo "Unsupported operating system: $OSTYPE"
+fi
 
 install() (
   case $1 in
     cli)
       cp -rf $dir/bin/* $prefix/bin/
       cp -rf $dir/lib/* $prefix/lib/
+      if [[ "$bin_os" == "Windows" ]]; then
+        echo "    - Installing WSL-compatible tools"
+        echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
+      fi
     ;;
   esac
   echo "    - Installed: $(ls --format=commas $dir/bin/)"
@@ -142,7 +144,7 @@ for tool in "${selected[@]}"; do
       description="CLI tools"
       if [ "$kind" = "nightly" ]; then
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/tags/nightly"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz)
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $sh_os-$arch.tar.gz)
       else
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
