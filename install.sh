@@ -46,8 +46,13 @@ download() (
 # Parse arguments
 for i in "$@"
 do
-# FIXME: add -p/--prefix
 case $i in
+    -p=*|--prefix=*)
+    prefix=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+    ;;
+    -t=*|--temporary=*)
+    tmp=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+    ;;
     all)
     selected=$all_tools
     ;;
@@ -90,7 +95,6 @@ if [[ -z $prefix ]]; then
   prefix=~/.local
 fi
 
-# FIXME: add option to override
 tmp="/tmp"
 
 # Require a tool to be selected
