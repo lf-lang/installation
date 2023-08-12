@@ -35,6 +35,7 @@ else
   fi
 fi
 
+echo "OS TYPE: $OSTYPE"
 
 install() (
   case $1 in
