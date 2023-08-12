@@ -124,7 +124,7 @@ for tool in "${selected[@]}"; do
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep Linux-aarch64.tar.gz)
       else
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli-0.4.0.tar.gz)
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
       fi
       arr=($kvp)
       url="${arr[1]:1:-1}"
