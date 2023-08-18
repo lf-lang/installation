@@ -19,6 +19,7 @@ jobs:
       - name: Print diagnostics
         run: |
           echo $PATH
+          echo ~
         shell: bash
       - name: Check out the repository
         uses: actions/checkout@v3
