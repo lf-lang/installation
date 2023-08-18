@@ -19,6 +19,7 @@ jobs:
       - name: Print diagnostics
         run: |
           echo $PATH
+        shell: bash
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install nightly all
@@ -27,13 +28,16 @@ jobs:
           lfc --version
           lfd --version
           lff --version
+        shell: bash
       - name: Install stable all
         run: |
           bash install.sh stable all
           lfc --version
           lff --version
+        shell: bash
       - name: Install epoch cli
         run: |
           bash install.sh epoch cli
           lfc --version
           lff --version
+        shell: bash
