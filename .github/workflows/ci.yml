@@ -16,6 +16,9 @@ jobs:
         with:
           distribution: oracle
           java-version: 17
+      - name: Print diagnostics
+        run: |
+          echo $PATH
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install nightly all
