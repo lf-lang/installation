@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -21,6 +23,11 @@ jobs:
           echo $PATH
           echo ~
         shell: bash
+      - name: Adjust $PATH (Windows only)
+        run: |
+          echo "~/.local/bin" >> $GITHUB_PATH
+        shell: bash
+        if: ${{ matrix.platform == 'windows-latest' }}
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install nightly all
