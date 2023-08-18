@@ -115,9 +115,11 @@ fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
-  if [[ "$bin_os" == "Windows" || "$bin_os" == "MacOS" ]]; then
+  if [[ "$bin_os" == "Windows" ]]; then
     # Assuming that ~/.bin is on the PATH
     prefix=~
+  elif [[ "$bin_os" == "MacOS" ]]; then
+    prefix=/usr/local
   else
     prefix=~/.local
   fi
