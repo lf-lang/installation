@@ -13,8 +13,19 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
-      - name: Run the installer
+      - name: Install nightly all
         run: |
           bash install.sh nightly all
+          lfc --version
+          lfd --version
+          lff --version
+      - name: Install stable all
+        run: |
           bash install.sh stable all
+          lfc --version
+          lff --version
+      - name: Install epoch cli
+        run: |
           bash install.sh epoch cli
+          lfc --version
+          lff --version
