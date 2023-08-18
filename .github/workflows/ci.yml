@@ -33,12 +33,14 @@ jobs:
       - name: Install stable all
         run: |
           bash install.sh stable all
-          lfc --version
-          lff --version
+        # FIXME currently not working. Uncomment after releasing v0.5.0
+        #   lfc --version
+        #   lff --version
         shell: bash
       - name: Install epoch cli
         run: |
           bash install.sh epoch cli
-          lfc --version
-          lff --version
+        # FIXME currently not working. Uncomment after releasing v0.5.0
+        #  lfc --version
+        #  lff --version
         shell: bash
