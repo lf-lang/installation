@@ -147,10 +147,15 @@ for tool in "${selected[@]}"; do
   case $tool in
     cli)
       description="CLI tools"
-      if [ "$kind" = "nightly" ]; then
+      if [[ "$kind" = "nightly" ]]; then
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/tags/nightly"
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $sh_os-$arch.tar.gz)
       else
+        if [[ "$bin_os" == "Windows" ]]; then
+          # FIXME: remove after release of v0.5.0
+          echo "> Stable version of $tool currently unavailable for Windows."
+          continue
+        fi
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
       fi
