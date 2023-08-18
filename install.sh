@@ -46,7 +46,7 @@ install() (
       fi
     ;;
   esac
-  echo "    - Installed: $(ls --format=commas $dir/bin/)"
+  echo "    - Installed: $(ls -m $dir/bin/)"
 )
 
 cleanup() (
