@@ -115,8 +115,8 @@ fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
-  if [[ "$bin_os" == "Windows" ]]; then
-    # Assuming that ~/.bin is on the PATH in WSL
+  if [[ "$bin_os" == "Windows" || "$bin_os" == "MacOS" ]]; then
+    # Assuming that ~/.bin is on the PATH
     prefix=~
   else
     prefix=~/.local
@@ -160,7 +160,7 @@ for tool in "${selected[@]}"; do
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
       fi
       arr=($kvp)
-      url="${arr[1]:1:-1}"
+      url="${arr[1]//\"/}"
       file=$(echo $url | grep -o '[^/]*\.tar.gz')
       dir=$tmp/"${file%.tar.gz}"
     ;;
