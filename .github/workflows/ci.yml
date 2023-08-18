@@ -11,6 +11,11 @@ jobs:
           platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
     runs-on: ${{ matrix.platform }}  
     steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: oracle
+          java-version: 17
       - name: Check out the repository
         uses: actions/checkout@v3
       - name: Install nightly all
