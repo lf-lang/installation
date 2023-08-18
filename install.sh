@@ -115,7 +115,12 @@ fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
-  prefix=~/.local
+  if [[ "$bin_os" == "Windows" ]]; then
+    # Assuming that ~/.bin is on the PATH in WSL
+    prefix=~
+  else
+    prefix=~/.local
+  fi
 fi
 
 tmp="/tmp"
