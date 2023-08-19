@@ -4,14 +4,14 @@ set -eo pipefail
 # Installer for Lingua Franca tools.
 # 
 # To install the stable CLI tools, run:
-# curl -s https://install.lf-lang.org | bash -s cli
+# curl -Ls https://install.lf-lang.org | bash -s cli
 # To install the nightly CLI tools, run:
-# curl -s https://install.lf-lang.org | bash -s nightly cli
+# curl -Ls https://install.lf-lang.org | bash -s nightly cli
 #
 # To install the stable release of Epoch, run:
-# curl -s https://install.lf-lang.org | bash -s epoch
+# curl -Ls https://install.lf-lang.org | bash -s epoch
 # To install the nightly release of Epoch, run:
-# curl -s https://install.lf-lang.org | bash -s nightly epoch
+# curl -Ls https://install.lf-lang.org | bash -s nightly epoch
 
 tools=("cli" "epoch")
 selected=()
@@ -44,9 +44,15 @@ install() (
         echo "    - Installing WSL-compatible tools"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
       fi
+    echo "    - Installed: $(ls -m $dir/bin/)"
+    ;;
+    epoch)
+      cp -rf $dir $prefix/lib/
+      ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+    echo "    - Installed: epoch"
     ;;
   esac
-  echo "    - Installed: $(ls -m $dir/bin/)"
+  
 )
 
 cleanup() (
@@ -58,9 +64,9 @@ cleanup() (
 )
 
 download() (
+  echo "    - Unpacking into $tmp"
   case $1 in
-    cli)
-      echo "    - Unpacking into $tmp"
+    cli|epoch)
       curl -sL $url | tar xfz - -C $tmp
     ;;
   esac
@@ -162,6 +168,31 @@ for tool in "${selected[@]}"; do
       url="${arr[1]//\"/}"
       file=$(echo $url | grep -o '[^/]*\.tar.gz')
       dir=$tmp/"${file%.tar.gz}"
+    ;;
+    epoch)
+      description="Epoch IDE"
+      if [[ "$bin_os" == "Windows" ]]; then
+        os="win32"
+      elif [[ "$bin_os" == "Linux" ]]; then
+        os="linux"
+      elif [[ "$bin_os" == "MacOS" ]]; then
+        os="mac"
+      fi
+      if [[ "$kind" == "nightly" ]]; then
+        rel="https://api.github.com/repos/lf-lang/epoch/releases/tags/nightly"
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $arch | grep $os)
+      else
+        if [[ "$bin_os" == "Windows" ]]; then
+          # FIXME: remove after release of v0.5.0
+          echo "> Stable version of $tool currently unavailable for Windows."
+          continue
+        fi
+        rel="https://api.github.com/repos/lf-lang/epoch/releases/latest"
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
+      fi
+      arr=($kvp)
+      url="${arr[1]//\"/}"
+      dir="$tmp/epoch"
     ;;
     *)
       echo "> Unable to install $tool."
