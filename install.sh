@@ -15,25 +15,7 @@ set -eo pipefail
 
 tools=("cli" "epoch")
 selected=()
-
-if [[ $(uname -m) == 'arm64' ]]; then
-  arch='aarch64'
-else
-  arch='x86_64'
-fi
-
-sh_os="Linux"
-
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  bin_os="Linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  bin_os="MacOS"
-  sh_os="$bin_os"
-elif [[ "$OSTYPE" == "msys" ]]; then
-  bin_os="Windows"
-else
-  echo "Unsupported operating system: $OSTYPE"
-fi
+timestamp=$(date '+%Y%m%d%H%M%S')
 
 install() (
   case $1 in
@@ -57,7 +39,7 @@ install() (
 
 cleanup() (
   case $1 in
-    cli)
+    cli|epoch)
       rm -rf $dir
     ;;
   esac
@@ -65,11 +47,16 @@ cleanup() (
 
 download() (
   echo "    - Unpacking into $tmp"
-  case $1 in
-    cli|epoch)
-      curl -sL $url | tar xfz - -C $tmp
-    ;;
-  esac
+  if [[ "$url" =~ .*tar\.gz$ ]];then
+    curl -sL $url | tar xfz - -C $tmp
+  elif [[ "$url" =~ .*zip$ ]];then
+    file="$tmp/lf-install-$timestamp.zip"
+    curl -sL $url -o $file
+    unzip -qq -d $tmp $file
+    rm -rf $file
+  else
+    echo "Unsuccessful. Unrecognized file format."
+  fi
 )
 
 # Parse arguments
@@ -147,6 +134,25 @@ if [ ! -d $prefix/lib ]; then
   mkdir -p $prefix/lib;
 fi
 
+if [[ $(uname -m) == 'arm64' ]]; then
+  arch='aarch64'
+else
+  arch='x86_64'
+fi
+
+sh_os="Linux"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  bin_os="Linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  bin_os="MacOS"
+  sh_os="$bin_os"
+elif [[ "$OSTYPE" == "msys" ]]; then
+  bin_os="Windows"
+else
+  echo "Unsupported operating system: $OSTYPE"
+fi
+
+
 # Install the selected tools
 for tool in "${selected[@]}"; do
   case $tool in
@@ -191,7 +197,6 @@ for tool in "${selected[@]}"; do
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "epoch" | grep "$arch" | grep "$os")
       fi
       arr=($kvp)
-      echo "$kvp"
       url="${arr[1]//\"/}"
       dir="$tmp/epoch"
     ;;
