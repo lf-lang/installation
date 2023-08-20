@@ -17,6 +17,24 @@ tools=("cli" "epoch")
 selected=()
 timestamp=$(date '+%Y%m%d%H%M%S')
 
+if [[ $(uname -m) == 'arm64' ]]; then
+  arch='aarch64'
+else
+  arch='x86_64'
+fi
+
+sh_os="Linux"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+  bin_os="Linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  bin_os="MacOS"
+  sh_os="$bin_os"
+elif [[ "$OSTYPE" == "msys" ]]; then
+  bin_os="Windows"
+else
+  echo "Unsupported operating system: $OSTYPE"
+fi
+
 install() (
   case $1 in
     cli)
@@ -133,25 +151,6 @@ if [ ! -d $prefix/lib ]; then
   echo "> Creating directory $prefix/lib"
   mkdir -p $prefix/lib;
 fi
-
-if [[ $(uname -m) == 'arm64' ]]; then
-  arch='aarch64'
-else
-  arch='x86_64'
-fi
-
-sh_os="Linux"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  bin_os="Linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  bin_os="MacOS"
-  sh_os="$bin_os"
-elif [[ "$OSTYPE" == "msys" ]]; then
-  bin_os="Windows"
-else
-  echo "Unsupported operating system: $OSTYPE"
-fi
-
 
 # Install the selected tools
 for tool in "${selected[@]}"; do
