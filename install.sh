@@ -4,17 +4,18 @@ set -eo pipefail
 # Installer for Lingua Franca tools.
 # 
 # To install the stable CLI tools, run:
-# curl -s https://install.lf-lang.org | bash -s cli
+# curl -Ls https://install.lf-lang.org | bash -s cli
 # To install the nightly CLI tools, run:
-# curl -s https://install.lf-lang.org | bash -s nightly cli
+# curl -Ls https://install.lf-lang.org | bash -s nightly cli
 #
 # To install the stable release of Epoch, run:
-# curl -s https://install.lf-lang.org | bash -s epoch
+# curl -Ls https://install.lf-lang.org | bash -s epoch
 # To install the nightly release of Epoch, run:
-# curl -s https://install.lf-lang.org | bash -s nightly epoch
+# curl -Ls https://install.lf-lang.org | bash -s nightly epoch
 
 tools=("cli" "epoch")
 selected=()
+timestamp=$(date '+%Y%m%d%H%M%S')
 
 if [[ $(uname -m) == 'arm64' ]]; then
   arch='aarch64'
@@ -23,7 +24,6 @@ else
 fi
 
 sh_os="Linux"
-
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
   bin_os="Linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -44,26 +44,47 @@ install() (
         echo "    - Installing WSL-compatible tools"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
       fi
+    echo "    - Installed: $(ls -m $dir/bin/)"
+    ;;
+    epoch)
+      if [[ "$bin_os" == "MacOS" ]]; then
+        cp -rf $dir /Applications/
+        xattr -cr /Applications/Epoch.app
+        rm -rf $prefix/bin/epoch
+        touch $prefix/bin/epoch
+        chmod +x $prefix/bin/epoch
+        echo '#!/bin/bash' > $prefix/bin/epoch
+        echo 'open /Applications/Epoch.app --args $@' >> $prefix/bin/epoch
+      else
+        cp -rf $dir $prefix/lib/
+        ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+      fi
+    echo "    - Installed: epoch"
     ;;
   esac
-  echo "    - Installed: $(ls -m $dir/bin/)"
+  
 )
 
 cleanup() (
   case $1 in
-    cli)
+    cli|epoch)
       rm -rf $dir
     ;;
   esac
 )
 
 download() (
-  case $1 in
-    cli)
-      echo "    - Unpacking into $tmp"
-      curl -sL $url | tar xfz - -C $tmp
-    ;;
-  esac
+  echo "    - Unpacking into $tmp"
+  if [[ "$url" =~ .*tar\.gz$ ]];then
+    curl -sL $url | tar xfz - -C $tmp
+  elif [[ "$url" =~ .*zip$ ]];then
+    file="$tmp/lf-install-$timestamp.zip"
+    curl -sL $url -o $file
+    unzip -qq -d $tmp $file
+    rm -rf $file
+  else
+    echo "Unsuccessful. Unrecognized file format."
+  fi
 )
 
 # Parse arguments
@@ -162,6 +183,35 @@ for tool in "${selected[@]}"; do
       url="${arr[1]//\"/}"
       file=$(echo $url | grep -o '[^/]*\.tar.gz')
       dir=$tmp/"${file%.tar.gz}"
+    ;;
+    epoch)
+      description="Epoch IDE"
+      if [[ "$bin_os" == "Windows" ]]; then
+        os="win32"
+      elif [[ "$bin_os" == "Linux" ]]; then
+        os="linux"
+      elif [[ "$bin_os" == "MacOS" ]]; then
+        os="mac"
+      fi
+      if [[ "$kind" == "nightly" ]]; then
+        rel="https://api.github.com/repos/lf-lang/epoch/releases/tags/nightly"
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os")
+      else
+        if [[ "$bin_os" == "Windows" ]]; then
+          # FIXME: remove after release of v0.5.0
+          echo "> Stable version of $tool currently unavailable for Windows."
+          continue
+        fi
+        rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "epoch" | grep "$arch" | grep "$os")
+      fi
+      arr=($kvp)
+      url="${arr[1]//\"/}"
+      if [[ "$bin_os" == "MacOS" ]]; then
+        dir="$tmp/epoch.app"
+      else
+        dir="$tmp/epoch"
+      fi
     ;;
     *)
       echo "> Unable to install $tool."
