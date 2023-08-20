@@ -36,7 +36,7 @@ jobs:
           lfc --version
           lfd --version
           lff --version
-          which epoch
+        #   which epoch
         shell: bash
       - name: Install stable all
         run: |

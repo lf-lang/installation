@@ -50,6 +50,9 @@ install() (
       if [[ "$bin_os" == "MacOS" ]]; then
         cp -rf $dir /Applications/
         xattr -cr /Applications/Epoch.app
+        rm -rf $prefix/bin/epoch
+        touch $prefix/bin/epoch
+        chmod +x $prefix/bin/epoch
         echo '#!/bin/bash' > $prefix/bin/epoch
         echo 'open /Applications/Epoch.app --args $@' >> $prefix/bin/epoch
       else
