@@ -47,8 +47,15 @@ install() (
     echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
     epoch)
-      cp -rf $dir $prefix/lib/
-      ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+      if [[ "$bin_os" == "MacOS" ]]; then
+        cp -rf $dir /Applications/
+        xattr -cr /Applications/Epoch.app
+        echo '#!/bin/bash' > $prefix/bin/epoch
+        echo 'open /Applications/Epoch.app --args $@' >> $prefix/bin/epoch
+      else
+        cp -rf $dir $prefix/lib/
+        ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+      fi
     echo "    - Installed: epoch"
     ;;
   esac
