@@ -198,7 +198,11 @@ for tool in "${selected[@]}"; do
       fi
       arr=($kvp)
       url="${arr[1]//\"/}"
-      dir="$tmp/epoch"
+      if [[ "$bin_os" == "MacOS" ]]; then
+        dir="$tmp/epoch.app"
+      else
+        dir="$tmp/epoch"
+      fi
     ;;
     *)
       echo "> Unable to install $tool."
