@@ -38,10 +38,11 @@ fi
 install() (
   case $1 in
     cli)
-      cp -rf $dir/* $share/
-      ln -sf  $share/bin/lfc $bin/lfc
-      ln -sf  $share/bin/lfd $bin/lfd
-      ln -sf  $share/bin/lff $bin/lff
+      mkdir -p $share/cli
+      cp -rf $dir/* $share/cli
+      ln -sf  $share/cli/bin/lfc $bin/lfc
+      ln -sf  $share/cli/bin/lfd $bin/lfd
+      ln -sf  $share/cli/bin/lff $bin/lff
       if [[ "$bin_os" == "Windows" ]]; then
         echo "    - Installing WSL-compatible tools"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
