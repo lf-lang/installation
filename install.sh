@@ -38,8 +38,10 @@ fi
 install() (
   case $1 in
     cli)
-      cp -rf $dir/bin/* $prefix/bin/
-      cp -rf $dir/lib/* $prefix/lib/
+      cp -rf $dir/* $share/
+      ln -sf  $share/bin/lfc $bin/lfc
+      ln -sf  $share/bin/lfd $bin/lfd
+      ln -sf  $share/bin/lff $bin/lff
       if [[ "$bin_os" == "Windows" ]]; then
         echo "    - Installing WSL-compatible tools"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
@@ -51,13 +53,13 @@ install() (
         cp -rf $dir /Applications/
         xattr -cr /Applications/Epoch.app
         rm -rf $prefix/bin/epoch
-        touch $prefix/bin/epoch
-        chmod +x $prefix/bin/epoch
-        echo '#!/bin/bash' > $prefix/bin/epoch
-        echo 'open /Applications/Epoch.app --args $@' >> $prefix/bin/epoch
+        touch $bin/epoch
+        chmod +x $bin/epoch
+        echo '#!/bin/bash' > $bin/epoch
+        echo 'open /Applications/Epoch.app --args $@' >> $bin/epoch
       else
-        cp -rf $dir $prefix/lib/
-        ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+        cp -rf $dir $share/
+        ln -sf $share/epoch/epoch $bin/epoch
       fi
     echo "    - Installed: epoch"
     ;;
@@ -144,6 +146,8 @@ if [[ -z $prefix ]]; then
 fi
 
 tmp="/tmp"
+share="$prefix/share/lingua-franca"
+bin="$prefix/bin"
 
 # Require a tool to be selected
 if [ ${#selected[@]} -eq 0 ]; then
@@ -152,14 +156,14 @@ if [ ${#selected[@]} -eq 0 ]; then
 fi
 
 # Create installation directories if necessary
-if [ ! -d $prefix/bin ]; then
-  echo "> Creating directory $prefix/bin"
-  mkdir -p $prefix/bin;
+if [ ! -d $bin ]; then
+  echo "> Creating directory $bin"
+  mkdir -p $bin;
 fi
 
-if [ ! -d $prefix/lib ]; then
-  echo "> Creating directory $prefix/lib"
-  mkdir -p $prefix/lib;
+if [ ! -d $share ]; then
+  echo "> Creating directory $share"
+  mkdir -p $share;
 fi
 
 # Install the selected tools
@@ -236,5 +240,5 @@ for tool in "${selected[@]}"; do
   echo ""
 done
 
-echo "> Done. Please ensure that $prefix/bin is on your PATH."
+echo "> Done. Please ensure that $bin is on your PATH."
 echo ""
