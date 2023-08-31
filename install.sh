@@ -12,7 +12,7 @@ set -eo pipefail
 # curl -Ls https://install.lf-lang.org | bash -s epoch
 # To install the nightly release of Epoch, run:
 # curl -Ls https://install.lf-lang.org | bash -s nightly epoch
-
+version="0.1.0-beta"
 tools=("cli" "epoch")
 selected=()
 timestamp=$(date '+%Y%m%d%H%M%S')
@@ -108,6 +108,10 @@ download() (
 for i in "$@"
 do
 case $i in
+    -v|--version)
+    echo "install.sh $version"
+    exit 0
+    ;;
     -p=*|--prefix=*)
     prefix=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
     ;;
