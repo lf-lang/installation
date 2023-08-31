@@ -38,17 +38,16 @@ fi
 install() (
   case $1 in
     cli)
+      mkdir -p $share/cli
+      cp -rf $dir/* $share/cli
+      ln -sf  $share/cli/bin/lfc $bin/lfc
+      ln -sf  $share/cli/bin/lfd $bin/lfd
+      ln -sf  $share/cli/bin/lff $bin/lff
       if [[ "$bin_os" == "Windows" ]]; then
-        echo "    - Installation on WSL is currently unsupported"
+        echo "    - Installing WSL-compatible tools"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
-      else
-        mkdir -p $share/cli
-        cp -rf $dir/* $share/cli
-        ln -sf  $share/cli/bin/lfc $bin/lfc
-        ln -sf  $share/cli/bin/lfd $bin/lfd
-        ln -sf  $share/cli/bin/lff $bin/lff
-        echo "    - Installed: $(ls -m $dir/bin/)"
       fi
+    echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
     epoch)
       if [[ "$bin_os" == "MacOS" ]]; then
