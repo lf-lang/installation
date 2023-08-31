@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -eo pipefail
 
 # Installer for Lingua Franca tools.
@@ -78,7 +78,8 @@ cleanup() (
 )
 
 download() (
-  echo "    - Unpacking into $tmp"
+  echo "    - Downloading and unpacking into $dir"
+  mkdir -p $tmp
   if [[ "$url" =~ .*tar\.gz$ ]];then
     curl -L --progress-bar $url | tar xfz - -C $tmp
   elif [[ "$url" =~ .*zip$ ]];then
@@ -147,7 +148,13 @@ if [[ -z $prefix ]]; then
   fi
 fi
 
-tmp="/tmp"
+# Use /tmp as the default temporary storage
+if [[ -z $tmp ]]; then
+  tmp="/tmp/lingua-franca"
+else
+  tmp="${tmp%/}/lingua-franca"
+fi
+
 share="$prefix/share/lingua-franca"
 bin="$prefix/bin"
 
