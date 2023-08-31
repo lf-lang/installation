@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -eo pipefail
 
 # Installer for Lingua Franca tools.
@@ -38,26 +38,30 @@ fi
 install() (
   case $1 in
     cli)
-      cp -rf $dir/bin/* $prefix/bin/
-      cp -rf $dir/lib/* $prefix/lib/
       if [[ "$bin_os" == "Windows" ]]; then
-        echo "    - Installing WSL-compatible tools"
+        echo "    - Installation on WSL is currently unsupported"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
+      else
+        mkdir -p $share/cli
+        cp -rf $dir/* $share/cli
+        ln -sf  $share/cli/bin/lfc $bin/lfc
+        ln -sf  $share/cli/bin/lfd $bin/lfd
+        ln -sf  $share/cli/bin/lff $bin/lff
+        echo "    - Installed: $(ls -m $dir/bin/)"
       fi
-    echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
     epoch)
       if [[ "$bin_os" == "MacOS" ]]; then
         cp -rf $dir /Applications/
         xattr -cr /Applications/Epoch.app
         rm -rf $prefix/bin/epoch
-        touch $prefix/bin/epoch
-        chmod +x $prefix/bin/epoch
-        echo '#!/bin/bash' > $prefix/bin/epoch
-        echo 'open /Applications/Epoch.app --args $@' >> $prefix/bin/epoch
+        touch $bin/epoch
+        chmod +x $bin/epoch
+        echo '#!/bin/bash' > $bin/epoch
+        echo 'open /Applications/Epoch.app --args $@' >> $bin/epoch
       else
-        cp -rf $dir $prefix/lib/
-        ln -sf $prefix/lib/epoch/epoch $prefix/bin/epoch
+        cp -rf $dir $share/
+        ln -sf $share/epoch/epoch $bin/epoch
       fi
     echo "    - Installed: epoch"
     ;;
@@ -74,12 +78,13 @@ cleanup() (
 )
 
 download() (
-  echo "    - Unpacking into $tmp"
+  echo "    - Downloading and unpacking into $dir"
+  mkdir -p $tmp
   if [[ "$url" =~ .*tar\.gz$ ]];then
-    curl -sL $url | tar xfz - -C $tmp
+    curl -L --progress-bar $url | tar xfz - -C $tmp
   elif [[ "$url" =~ .*zip$ ]];then
     file="$tmp/lf-install-$timestamp.zip"
-    curl -sL $url -o $file
+    curl -L --progress-bar $url -o $file
     unzip -qq -d $tmp $file
     rm -rf $file
   else
@@ -143,7 +148,15 @@ if [[ -z $prefix ]]; then
   fi
 fi
 
-tmp="/tmp"
+# Use /tmp as the default temporary storage
+if [[ -z $tmp ]]; then
+  tmp="/tmp/lingua-franca"
+else
+  tmp="${tmp%/}/lingua-franca"
+fi
+
+share="$prefix/share/lingua-franca"
+bin="$prefix/bin"
 
 # Require a tool to be selected
 if [ ${#selected[@]} -eq 0 ]; then
@@ -152,14 +165,14 @@ if [ ${#selected[@]} -eq 0 ]; then
 fi
 
 # Create installation directories if necessary
-if [ ! -d $prefix/bin ]; then
-  echo "> Creating directory $prefix/bin"
-  mkdir -p $prefix/bin;
+if [ ! -d $bin ]; then
+  echo "> Creating directory $bin"
+  mkdir -p $bin;
 fi
 
-if [ ! -d $prefix/lib ]; then
-  echo "> Creating directory $prefix/lib"
-  mkdir -p $prefix/lib;
+if [ ! -d $share ]; then
+  echo "> Creating directory $share"
+  mkdir -p $share;
 fi
 
 # Install the selected tools
@@ -236,5 +249,5 @@ for tool in "${selected[@]}"; do
   echo ""
 done
 
-echo "> Done. Please ensure that $prefix/bin is on your PATH."
+echo "> Done. Please ensure that $bin is on your PATH."
 echo ""
