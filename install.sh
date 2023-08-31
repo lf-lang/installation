@@ -35,17 +35,30 @@ else
   echo "Unsupported operating system: $OSTYPE"
 fi
 
+fwd() (
+  cat >$1 <<EOL
+#!/bin/sh
+$($2 $@)
+
+EOL
+ chmod +x $1  
+)
+
 install() (
   case $1 in
     cli)
       mkdir -p $share/cli
       cp -rf $dir/* $share/cli
-      ln -sf  $share/cli/bin/lfc $bin/lfc
-      ln -sf  $share/cli/bin/lfd $bin/lfd
-      ln -sf  $share/cli/bin/lff $bin/lff
       if [[ "$bin_os" == "Windows" ]]; then
-        echo "    - Installing WSL-compatible tools"
+        echo "    - Installing POSIX-compatible tools for WSL"
         echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
+        fwd $bin/lfc $share/cli/bin/lfc
+        fwd $bin/lfd $share/cli/bin/lfd
+        fwd $bin/lff $share/cli/bin/lff
+      else
+        ln -sf  $share/cli/bin/lfc $bin/lfc
+        ln -sf  $share/cli/bin/lfd $bin/lfd
+        ln -sf  $share/cli/bin/lff $bin/lff
       fi
     echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
