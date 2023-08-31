@@ -80,10 +80,10 @@ cleanup() (
 download() (
   echo "    - Unpacking into $tmp"
   if [[ "$url" =~ .*tar\.gz$ ]];then
-    curl -sL $url | tar xfz - -C $tmp
+    curl -L --progress-bar $url | tar xfz - -C $tmp
   elif [[ "$url" =~ .*zip$ ]];then
     file="$tmp/lf-install-$timestamp.zip"
-    curl -sL $url -o $file
+    curl -L --progress-bar $url -o $file
     unzip -qq -d $tmp $file
     rm -rf $file
   else
