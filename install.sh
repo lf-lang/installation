@@ -16,12 +16,10 @@ else
   arch='x86_64'
 fi
 
-os="Linux"
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ "$OSTYPE" == "linux"* || "$OSTYPE" == "msys" ]]; then
+  os="Linux"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
   os="MacOS"
-elif [[ "$OSTYPE" == "msys" ]]; then
-  echo "Git bash?"
-  exit 1
 else
   echo "Unsupported operating system: $OSTYPE"
   exit 1
@@ -145,6 +143,12 @@ if [[ -z $kind ]]; then
   kind="stable"
 fi
 
+if [[ "$kind" == "nightly" ]]; then
+  suffix="tags/nightly"
+else
+  suffix="latest"
+fi
+
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
  if [[ "$os" == "MacOS" ]]; then
@@ -186,13 +190,8 @@ for tool in "${selected[@]}"; do
   case $tool in
     cli)
       description="CLI tools"
-      if [[ "$kind" = "nightly" ]]; then
-        rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/tags/nightly"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz)
-      else
-        rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
-      fi
+      rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
+      kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz)
       arr=($kvp)
       url="${arr[1]//\"/}"
       file=$(echo $url | grep -o '[^/]*\.tar.gz')
