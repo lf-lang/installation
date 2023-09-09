@@ -16,7 +16,7 @@ else
   arch='x86_64'
 fi
 
-if [[ "$OSTYPE" == "linux"* || "$OSTYPE" == "msys" ]]; then
+if [[ "$OSTYPE" == "linux"* ]]; then
   os="Linux"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   os="MacOS"
@@ -25,30 +25,15 @@ else
   exit 1
 fi
 
-fwd() (
-  cat >$1 <<EOL
-#!/bin/sh
-$($2 $@)
-
-EOL
- chmod +x $1  
-)
-
 install() (
   case $1 in
     cli)
       mkdir -p $share/cli
       cp -rf $dir/* $share/cli
-      if [[ "$OSTYPE" == "msys" ]]; then
-        fwd $bin/lfc $share/cli/bin/lfc
-        fwd $bin/lfd $share/cli/bin/lfd
-        fwd $bin/lff $share/cli/bin/lff
-      else
-        ln -sf  $share/cli/bin/lfc $bin/lfc
-        ln -sf  $share/cli/bin/lfd $bin/lfd
-        ln -sf  $share/cli/bin/lff $bin/lff
-      fi
-    echo "    - Installed: $(ls -m $dir/bin/)"
+      ln -sf  $share/cli/bin/lfc $bin/lfc
+      ln -sf  $share/cli/bin/lfd $bin/lfd
+      ln -sf  $share/cli/bin/lff $bin/lff
+      echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
     epoch)
       if [[ "$os" == "MacOS" ]]; then
@@ -63,7 +48,7 @@ install() (
         cp -rf $dir $share/
         ln -sf $share/epoch/epoch $bin/epoch
       fi
-    echo "    - Installed: epoch"
+      echo "    - Installed: epoch"
     ;;
   esac
   
