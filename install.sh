@@ -5,7 +5,7 @@ set -eo pipefail
 # Author: marten@berkeley.edu
 # License: BSD-2
 
-version="0.1.0-beta"
+version="0.1.0-beta-1"
 tools=("cli" "epoch")
 selected=()
 timestamp=$(date '+%Y%m%d%H%M%S')
