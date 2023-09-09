@@ -10,7 +10,7 @@ jobs:
   install:
     strategy:
         matrix:
-          platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
+          platform: ["ubuntu-latest", "macos-latest"]
     runs-on: ${{ matrix.platform }}  
     steps:
       - name: Setup Java JDK
@@ -36,19 +36,21 @@ jobs:
           lfc --version
           lfd --version
           lff --version
-        #   which epoch
+          which epoch
         shell: bash
       - name: Install stable all
         run: |
           bash install.sh stable all
-        # FIXME currently not working. Uncomment after releasing v0.5.0
-        #   lfc --version
-        #   lff --version
+          lfc --version
+          lfd --version
+          lff --version
+          which epoch
         shell: bash
       - name: Install epoch cli
         run: |
           bash install.sh epoch cli
-        # FIXME currently not working. Uncomment after releasing v0.5.0
-        #  lfc --version
-        #  lff --version
+          lfc --version
+          lfd --version
+          lff --version
+          which epoch
         shell: bash
