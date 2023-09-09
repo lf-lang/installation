@@ -204,13 +204,8 @@ for tool in "${selected[@]}"; do
       elif [[ "$os" == "MacOS" ]]; then
         os_abbr="mac"
       fi
-      if [[ "$kind" == "nightly" ]]; then
-        rel="https://api.github.com/repos/lf-lang/epoch/releases/tags/nightly"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os_abbr")
-      else
-        rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "epoch" | grep "$arch" | grep "$os_abbr")
-      fi
+      rel="https://api.github.com/repos/lf-lang/epoch/releases/$suffix"
+      kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os_abbr")
       arr=($kvp)
       url="${arr[1]//\"/}"
       if [[ "$os" == "MacOS" ]]; then
