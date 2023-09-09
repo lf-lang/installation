@@ -16,16 +16,15 @@ else
   arch='x86_64'
 fi
 
-sh_os="Linux"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  bin_os="Linux"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  bin_os="MacOS"
-  sh_os="$bin_os"
+os="Linux"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  os="MacOS"
 elif [[ "$OSTYPE" == "msys" ]]; then
-  bin_os="Windows"
+  echo "Git bash?"
+  exit 1
 else
   echo "Unsupported operating system: $OSTYPE"
+  exit 1
 fi
 
 fwd() (
@@ -42,9 +41,7 @@ install() (
     cli)
       mkdir -p $share/cli
       cp -rf $dir/* $share/cli
-      if [[ "$bin_os" == "Windows" ]]; then
-        echo "    - Installing POSIX-compatible tools for WSL"
-        echo "      => PowerShell scripts available at https://github.com/lf-lang/lingua-franca/releases"
+      if [[ "$OSTYPE" == "msys" ]]; then
         fwd $bin/lfc $share/cli/bin/lfc
         fwd $bin/lfd $share/cli/bin/lfd
         fwd $bin/lff $share/cli/bin/lff
@@ -56,7 +53,7 @@ install() (
     echo "    - Installed: $(ls -m $dir/bin/)"
     ;;
     epoch)
-      if [[ "$bin_os" == "MacOS" ]]; then
+      if [[ "$os" == "MacOS" ]]; then
         cp -rf $dir /Applications/
         xattr -cr /Applications/Epoch.app
         rm -rf $prefix/bin/epoch
@@ -150,7 +147,7 @@ fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
- if [[ "$bin_os" == "MacOS" ]]; then
+ if [[ "$os" == "MacOS" ]]; then
     prefix=/usr/local
   else
     prefix=~/.local
@@ -191,13 +188,8 @@ for tool in "${selected[@]}"; do
       description="CLI tools"
       if [[ "$kind" = "nightly" ]]; then
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/tags/nightly"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $sh_os-$arch.tar.gz)
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz)
       else
-        if [[ "$bin_os" == "Windows" ]]; then
-          # FIXME: remove after release of v0.5.0
-          echo "> Stable version of $tool currently unavailable for Windows."
-          continue
-        fi
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
         kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep lf-cli | grep tar.gz)
       fi
@@ -208,28 +200,21 @@ for tool in "${selected[@]}"; do
     ;;
     epoch)
       description="Epoch IDE"
-      if [[ "$bin_os" == "Windows" ]]; then
-        os="win32"
-      elif [[ "$bin_os" == "Linux" ]]; then
-        os="linux"
-      elif [[ "$bin_os" == "MacOS" ]]; then
-        os="mac"
+      if [[ "$os" == "Linux" ]]; then
+        os_abbr="linux"
+      elif [[ "$os" == "MacOS" ]]; then
+        os_abbr="mac"
       fi
       if [[ "$kind" == "nightly" ]]; then
         rel="https://api.github.com/repos/lf-lang/epoch/releases/tags/nightly"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os")
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os_abbr")
       else
-        if [[ "$bin_os" == "Windows" ]]; then
-          # FIXME: remove after release of v0.5.0
-          echo "> Stable version of $tool currently unavailable for Windows."
-          continue
-        fi
         rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/latest"
-        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "epoch" | grep "$arch" | grep "$os")
+        kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "epoch" | grep "$arch" | grep "$os_abbr")
       fi
       arr=($kvp)
       url="${arr[1]//\"/}"
-      if [[ "$bin_os" == "MacOS" ]]; then
+      if [[ "$os" == "MacOS" ]]; then
         dir="$tmp/epoch.app"
       else
         dir="$tmp/epoch"
