@@ -5,22 +5,22 @@ More detailed documentation is forthcoming, but here a few useful ways of using 
 
 ## To install the stable CLI tools, run:
 ```bash
-curl -Ls https://i.lf-lang.org | sh -s cli
+curl -Ls https://i.lf-lang.org | bash -s cli
 ```
 
 ## To install the nightly CLI tools, run:
 ```bash
-curl -Ls https://i.lf-lang.org | sh -s nightly cli
+curl -Ls https://i.lf-lang.org | bash -s nightly cli
 ```
 
 ## To install the stable release of Epoch, run:
 ```bash
-curl -Ls https://i.lf-lang.org | sh -s epoch
+curl -Ls https://i.lf-lang.org | bash -s epoch
 ```
 
 ## To install the nightly release of Epoch, run:
 ```bash
-curl -Ls https://i.lf-lang.org | sh -s nightly epoch
+curl -Ls https://i.lf-lang.org | bash -s nightly epoch
 ```
 
 ## Installation on Windows
