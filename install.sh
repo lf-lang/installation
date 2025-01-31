@@ -183,6 +183,7 @@ for tool in "${selected[@]}"; do
     cli)
       description="CLI tools"
       rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
+      echo "> Connecting to $rel ..."
       resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -H "Accept: application/vnd.github+json" $rel)
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
