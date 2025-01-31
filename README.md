@@ -10,15 +10,20 @@ curl -Ls https://i.lf-lang.org | bash -s cli
 
 ## To install the nightly CLI tools, run:
 ```bash
-curl -Ls https://i.lf-lang.org | bash -s nightly cli
+curl -Ls https://i.lf-lang.org | bash -s cli nightly
 ```
 
-## To install the stable release of Epoch, run:
+## To install a version 0.8.1 of the CLI tools, run:
+```bash
+curl -Ls https://i.lf-lang.org | bash -s cli 0.8.1
+```
+
+## To install the stable release of Epoch (deprecated), run:
 ```bash
 curl -Ls https://i.lf-lang.org | bash -s epoch
 ```
 
-## To install the nightly release of Epoch, run:
+## To install the nightly release of Epoch (deprecated), run:
 ```bash
 curl -Ls https://i.lf-lang.org | bash -s nightly epoch
 ```
@@ -29,6 +34,6 @@ The installer can also be used to install Lingua Franca in Windows Subsystem for
 ## Manual installation
 Please refer to our published release artifacts:
  - [CLI Tools](https://github.com/lf-lang/lingua-franca/releases/latest)
- - [Epoch IDE](https://github.com/lf-lang/epoch/releases/latest)
+ - [Epoch IDE (deprecated)](https://github.com/lf-lang/epoch/releases/latest)
  
 To install these, simply download the appropriate `.zip` or `.tar.gz` archives, decompress them, and place the contents in your file system.
