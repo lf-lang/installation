@@ -183,11 +183,11 @@ for tool in "${selected[@]}"; do
     cli)
       description="CLI tools"
       rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" $rel)
+      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -H "Accept: application/vnd.github+json" $rel)
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
-          exit 1
+        exit 1
       fi
       kvp=$(echo "$resp" | grep "download_url" | grep "$os-$arch.tar.gz")
       arr=($kvp)
@@ -203,11 +203,11 @@ for tool in "${selected[@]}"; do
         os_abbr="mac"
       fi
       rel="https://api.github.com/repos/lf-lang/epoch/releases/$suffix"
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" $rel)
+      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -H "Accept: application/vnd.github+json" $rel)
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
-          exit 1
+        exit 1
       fi
       kvp=$(echo "$resp" | grep "download_url" | grep "$arch" | grep "$os_abbr")
       arr=($kvp)
