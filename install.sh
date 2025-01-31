@@ -147,11 +147,7 @@ fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
-  if [[ "$os" == "MacOS" ]]; then
-    prefix=/usr/local
-  else
-    prefix=~/.local
-  fi
+  prefix=~/.local
 fi
 
 # Use /tmp as the default temporary storage
