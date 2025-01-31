@@ -21,7 +21,7 @@ if [[ "$OSTYPE" == "linux"* ]]; then
 elif [[ "$OSTYPE" == "darwin"* ]]; then
   os="MacOS"
 else
-  echo "Unsupported operating system: $OSTYPE"
+  echo "Error: Unsupported operating system: $OSTYPE" >&2
   exit 1
 fi
 
@@ -104,39 +104,51 @@ case $i in
     if [[ -z $kind ]]; then
       kind="nightly"
     else
-      echo "You can only use one qualifier; choose 'stable' or 'nightly'."
+      echo "Error: You can only use one qualifier; choose 'stable' or 'nightly'" >&2
       exit 1
     fi
     ;;
     stable)
     if [[ -z $kind ]]; then
-      kind="stable"
+      kind="latest"
     else
-      echo "You can only use one qualifier; choose 'stable' or 'nightly'."
+      echo "Error: You can only use one qualifier; choose 'stable' or 'nightly'"
+      exit 1
+    fi
+    ;;
+    v[0-9]*.[0-9]*.[0-9]*|[0-9]*.[0-9]*.[0-9]*)
+    if [[ -n $kind ]]; then
+      echo "Error: Either use a version number or a qualifier ('stable' or 'nightly'), not both." >&2
+      exit 1
+    fi
+    version=${i#v}
+    supported="^(0\.([5-9][0-9]*|[1-9][0-9]+)\.[0-9]+)|(([1-9][0-9]*)\.[0-9]+\.[0-9]+)$"
+    if ! [[ $version =~ $supported ]]; then
+      echo "Error: Only versions 0.5.0 and up can be installed using this script." >&2
       exit 1
     fi
     ;;
     *)
-    echo "Unknown option: $i"
+    echo "Error: Unknown option: $i"
     exit 1
     ;;
 esac
 done
 
-# Use stable by default
-if [[ -z $kind ]]; then
-  kind="stable"
-fi
-
-if [[ "$kind" == "nightly" ]]; then
-  suffix="tags/nightly"
+# Either use the supplied version, nightly, or latest.
+if [[ -n $version ]]; then
+  suffix="tags/v${version}"
 else
-  suffix="latest"
+  if [[ "$kind" == "nightly" ]]; then
+    suffix="tags/nightly"
+  else
+    suffix="latest"
+  fi
 fi
 
 # Use ~/.local default prefix
 if [[ -z $prefix ]]; then
- if [[ "$os" == "MacOS" ]]; then
+  if [[ "$os" == "MacOS" ]]; then
     prefix=/usr/local
   else
     prefix=~/.local
@@ -155,7 +167,7 @@ bin="$prefix/bin"
 
 # Require a tool to be selected
 if [ ${#selected[@]} -eq 0 ]; then
-  echo "Please specify a tool to install. To install all tools, use 'all'."
+  echo "Error: Please specify a tool to install. To install all tools, use 'all'." >&2
   exit 1
 fi
 
@@ -176,7 +188,10 @@ for tool in "${selected[@]}"; do
     cli)
       description="CLI tools"
       rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
-      kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz)
+      if ! kvp=$(curl -L -s -f -H "Accept: application/vnd.github+json" $rel 2>&1 | grep download_url | grep $os-$arch.tar.gz); then
+        echo "Error: Failed to fetch data from $rel" >&2
+        exit 1
+      fi
       arr=($kvp)
       url="${arr[1]//\"/}"
       file=$(echo $url | grep -o '[^/]*\.tar.gz')
@@ -190,7 +205,10 @@ for tool in "${selected[@]}"; do
         os_abbr="mac"
       fi
       rel="https://api.github.com/repos/lf-lang/epoch/releases/$suffix"
-      kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os_abbr")
+      if ! kvp=$(curl -L -H "Accept: application/vnd.github+json" $rel 2>&1 | grep "download_url" | grep "$arch" | grep "$os_abbr"); then
+        echo "Error: Failed to fetch data from $rel" >&2
+        exit 1
+      fi
       arr=($kvp)
       url="${arr[1]//\"/}"
       if [[ "$os" == "MacOS" ]]; then
@@ -205,7 +223,7 @@ for tool in "${selected[@]}"; do
     ;;
   esac
 
-  echo "> Installing the latest $kind release of $description..."
+  echo "> Installing the ${kind:-$version} release of $description..."
   echo ""
 
   # Download
