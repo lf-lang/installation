@@ -218,7 +218,7 @@ for tool in "${selected[@]}"; do
     ;;
   esac
 
-  echo "> Installing the ${kind:-$version} release of $description..."
+  echo "> Installing the ${kind:-$version} release for $os-$arch of $description..."
   echo ""
 
   # Download
