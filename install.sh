@@ -5,7 +5,6 @@ set -eo pipefail
 # Author: marten@berkeley.edu
 # License: BSD-2
 
-version="0.1.0-beta-1"
 tools=("cli" "epoch")
 selected=()
 timestamp=$(date '+%Y%m%d%H%M%S')
@@ -118,13 +117,13 @@ case $i in
     ;;
     v[0-9]*.[0-9]*.[0-9]*|[0-9]*.[0-9]*.[0-9]*)
     if [[ -n $kind ]]; then
-      echo "Error: Either use a version number or a qualifier ('stable' or 'nightly'), not both." >&2
+      echo "Error: Either use a version number or a qualifier ('stable' or 'nightly'), not both" >&2
       exit 1
     fi
     version=${i#v}
     supported="^(0\.([5-9][0-9]*|[1-9][0-9]+)\.[0-9]+)|(([1-9][0-9]*)\.[0-9]+\.[0-9]+)$"
     if ! [[ $version =~ $supported ]]; then
-      echo "Error: Only versions 0.5.0 and up can be installed using this script." >&2
+      echo "Error: Only versions 0.5.0 and up can be installed using this script" >&2
       exit 1
     fi
     ;;
