@@ -54,3 +54,10 @@ jobs:
           lff --version
           which epoch
         shell: bash
+      - name: Install specific version of cli
+        run: |
+          bash install.sh cli v0.8.1
+          lfc --version
+          lfd --version
+          lff --version
+        shell: bash
