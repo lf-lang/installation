@@ -90,6 +90,9 @@ case $i in
     -t=*|--temporary=*)
     tmp=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
     ;;
+    --gh-token=*)
+    AUTH_TOKEN=${i#--gh-token=}
+    ;;
     all)
     selected=("${tools[@]}")
     ;;
@@ -177,14 +180,22 @@ if [ ! -d $share ]; then
   mkdir -p $share;
 fi
 
+CURL_GENERAL_ARGS=(--retry 5 --retry-delay 2 --retry-max-time 30 -L -sS -f -H "Accept: application/vnd.github+json")
+
 # Install the selected tools
 for tool in "${selected[@]}"; do
   case $tool in
     cli)
       description="CLI tools"
+      ARGS=("${CURL_GENERAL_ARGS[@]}")
+      if [ -n "$AUTH_TOKEN" ]; then
+          ARGS+=(-H "Authorization: Bearer $AUTH_TOKEN")
+          ARGS+=(-H "X-GitHub-Api-Version: 2022-11-28")
+      fi
       rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
       echo "> Fetching data from $rel ..."
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" "$rel")
+      echo "${ARGS[@]}" "$rel"
+      resp=$(curl "${ARGS[@]}" "$rel")
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
@@ -203,9 +214,14 @@ for tool in "${selected[@]}"; do
       elif [[ "$os" == "MacOS" ]]; then
         os_abbr="mac"
       fi
+      ARGS=("${CURL_GENERAL_ARGS[@]}")
+      if [ -n "$AUTH_TOKEN" ]; then
+          ARGS+=(-H "Authorization: Bearer $AUTH_TOKEN")
+          ARGS+=(-H "X-GitHub-Api-Version: 2022-11-28")
+      fi
       rel="https://api.github.com/repos/lf-lang/epoch/releases/$suffix"
       echo "> Fetching data from $rel ..."
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" "$rel")
+      resp=$(curl "${ARGS[@]}" "$rel")
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
