@@ -150,9 +150,9 @@ if [[ -z $prefix ]]; then
   prefix=~/.local
 fi
 
-# Use /tmp as the default temporary storage
+# Use $HOME/.tmp as the default temporary storage
 if [[ -z $tmp ]]; then
-  tmp="/tmp/lingua-franca"
+  tmp="$HOME/.tmp/lingua-franca"
 else
   tmp="${tmp%/}/lingua-franca"
 fi
