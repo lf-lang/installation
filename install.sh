@@ -9,7 +9,7 @@ tools=("cli" "epoch")
 selected=()
 timestamp=$(date '+%Y%m%d%H%M%S')
 
-if [[ $(uname -m) == 'arm64' ]]; then
+if [[ $(uname -m) == 'arm64' || $(uname -m) == 'aarch64' ]]; then
   arch='aarch64'
 else
   arch='x86_64'
