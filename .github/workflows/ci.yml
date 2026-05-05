@@ -8,6 +8,10 @@ on:
 
 jobs:
   install:
+    permissions:
+      contents: read
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     strategy:
         matrix:
           platform: ["ubuntu-latest", "macos-latest"]

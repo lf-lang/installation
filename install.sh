@@ -76,6 +76,25 @@ download() (
   fi
 )
 
+# GitHub REST: optional GITHUB_TOKEN or GH_TOKEN (e.g. CI) improves rate limits and reliability.
+fetch_github_release_json() {
+  _url="$1"
+  _tok="${GITHUB_TOKEN:-}"
+  [ -z "$_tok" ] && _tok="${GH_TOKEN:-}"
+  if [ -n "$_tok" ]; then
+    curl --retry 10 --retry-delay 5 --retry-max-time 300 \
+      --connect-timeout 30 --max-time 300 -L -s -f \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer $_tok" \
+      "$_url"
+  else
+    curl --retry 10 --retry-delay 5 --retry-max-time 300 \
+      --connect-timeout 30 --max-time 300 -L -s -f \
+      -H "Accept: application/vnd.github+json" \
+      "$_url"
+  fi
+}
+
 # Parse arguments
 for i in "$@"
 do
@@ -184,7 +203,7 @@ for tool in "${selected[@]}"; do
       description="CLI tools"
       rel="https://api.github.com/repos/lf-lang/lingua-franca/releases/$suffix"
       echo "> Fetching data from $rel ..."
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" "$rel")
+      resp=$(fetch_github_release_json "$rel")
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
@@ -205,7 +224,7 @@ for tool in "${selected[@]}"; do
       fi
       rel="https://api.github.com/repos/lf-lang/epoch/releases/$suffix"
       echo "> Fetching data from $rel ..."
-      resp=$(curl --retry 5 --retry-delay 2 --retry-max-time 30 -L -s -f -H "Accept: application/vnd.github+json" "$rel")
+      resp=$(fetch_github_release_json "$rel")
       resp_ok=$?
       if [ $resp_ok -ne 0 ]; then
         echo "Error: Failed to fetch data from $rel" >&2
